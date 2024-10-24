@@ -98,6 +98,7 @@ void makeLineB_H(int x0, int y0, int x1, int y1, int *SIZE, char (*cords)[*SIZE]
 	dy=y1-y0;
 
 	int dir = (dy<0)?-1:1;
+	dy = dy*dir;
 
 	x=x0;
 	y=y0;
@@ -135,6 +136,7 @@ void makeLineB_V(int x0, int y0, int x1, int y1, int *SIZE, char (*cords)[*SIZE]
 	dy=y1-y0;
 
 	int dir = (dx<0)?-1:1;
+	dx=dx*dir;
 
 	x=x0;
 	y=y0;
@@ -228,6 +230,9 @@ int main(){
 
 		//connectSquare(&sqr,&phi,&SIZE,cords);
 		makeLineB(normalize(sqr.points[0].x, &SIZE),normalize(sqr.points[0].y, &SIZE),normalize(sqr.points[1].x, &SIZE),normalize(sqr.points[1].y, &SIZE), &SIZE, cords);
+		makeLineB(normalize(sqr.points[1].x, &SIZE),normalize(sqr.points[1].y, &SIZE),normalize(sqr.points[2].x, &SIZE),normalize(sqr.points[2].y, &SIZE), &SIZE, cords);
+		makeLineB(normalize(sqr.points[2].x, &SIZE),normalize(sqr.points[2].y, &SIZE),normalize(sqr.points[3].x, &SIZE),normalize(sqr.points[3].y, &SIZE), &SIZE, cords);
+		makeLineB(normalize(sqr.points[3].x, &SIZE),normalize(sqr.points[3].y, &SIZE),normalize(sqr.points[0].x, &SIZE),normalize(sqr.points[0].y, &SIZE), &SIZE, cords);
 
 		for(int u=0;u<SQ_SIZE;u++){
 			cords[normalize(sqr.points[u].y, &SIZE)][normalize(sqr.points[u].x, &SIZE)]='O';
@@ -254,7 +259,7 @@ int main(){
 
 		//calctulating phi
 		phi = (phi<M_PI*2)?phi+PHI_SPD:0;
-		printf("phi: %f\n", phi);
+		//printf("phi: %f\n", phi);
 		//if (phi>2*M_PI) return 0;
 
 		//freezing
