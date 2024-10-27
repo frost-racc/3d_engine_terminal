@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <windows.h>
 #include <math.h>
+#include <unistd.h>
 #define SQ_SIZE 4
 #define CB_SIZE 8
 #define PHI_SPD 0.1
@@ -372,6 +373,7 @@ int main(){
 
 		//freezing
 		Sleep(50); //frame rate is * the size of the board
+		//sleep(50);
 	}
   return 0;
 }
