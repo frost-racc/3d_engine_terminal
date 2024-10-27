@@ -4,7 +4,7 @@
 #define SQ_SIZE 4
 #define CB_SIZE 8
 #define PHI_SPD 0.1
-#define SHAPE_SCALE 5
+#define SHAPE_SCALE 8
 
 typedef struct{
 	float x;
@@ -68,29 +68,7 @@ int normalize(float value, int *SIZE) {
     return normalized_value;
 }
 
-//hardcoding drawing symbols for now
-void makeLine(point *a, point *b, int *SIZE, char (*cords)[*SIZE]){
-	float dx = (b->x) - (a->x);
-	float dy = (b->y) - (a->x);
-	int step = (abs(dx)>abs(dy))?abs(dx):abs(dy);
-	if(dx!=0){
-		float stepX = dx/(float)step; 
-		float stepY = dy/(float)step;
-		float X=a->x;
-		float Y=a->y;
-		for(int i=0; i<=step;i++){
-			cords[(int)round(Y)][(int)round(X)]='.';
-			X+=stepX;
-			Y+=stepY;
-		}	
-	}
-}
-void connectSquare(square *sq, float *phi, int *SIZE, char (*cords)[*SIZE]){
-	makeLine(&(sq->points[0]),&(sq->points[1]), SIZE, cords);
-	makeLine(&(sq->points[1]),&(sq->points[2]), SIZE, cords);
-	makeLine(&(sq->points[2]),&(sq->points[3]), SIZE, cords);
-	makeLine(&(sq->points[3]),&(sq->points[0]), SIZE, cords);
-}
+
 
 
 void makeLineB_H(int x0, int y0, int x1, int y1, int *SIZE, char (*cords)[*SIZE]){
@@ -178,10 +156,51 @@ void makeLineB(int x0, int y0, int x1, int y1, int *SIZE, char (*cords)[*SIZE]){
 	}
 }
 
-void MatMul3D(){
-	
+void makeLineB_point(point_3D *a, point_3D *b, int *SIZE, char (*cords)[*SIZE]){
+
+	float x0,x1,y0,y1;
+	x0 = normalize(a->x,SIZE);
+	x1 = normalize(b->x,SIZE);
+	y0 = normalize(a->y,SIZE);
+	y1 = normalize(b->y,SIZE);
+
+
+	if(abs(x1-x0)>abs(y1-y0)){
+		makeLineB_H(x0,y0,x1,y1,SIZE,cords);
+	}else{
+		makeLineB_V(x0,y0,x1,y1,SIZE,cords);
+	}
 }
 
+void matmul3x3(cube *cb, float m[3][3]){
+	for (int i=0;i<CB_SIZE;i++) {
+		float x = cb->points[i].x;
+		float y = cb->points[i].y;
+		float z = cb->points[i].z;
+      		float tempx = m[0][0]*x + m[0][1]*y + m[0][2]*z;
+      		float tempy = m[1][0]*x + m[1][1]*y + m[1][2]*z;
+      		float tempz = m[2][0]*x + m[2][1]*y + m[2][2]*z;
+		cb->points[i].x = tempx;
+		cb->points[i].y = tempy;
+		cb->points[i].z = tempz;
+
+	}	
+}
+
+void connectCube(cube *cb, int *SIZE, char (*cords)[*SIZE]){
+	makeLineB_point(&(cb->points[0]), &(cb->points[1]),SIZE,cords);
+	makeLineB_point(&(cb->points[1]), &(cb->points[2]),SIZE,cords);
+	makeLineB_point(&(cb->points[2]), &(cb->points[3]),SIZE,cords);
+	makeLineB_point(&(cb->points[3]), &(cb->points[0]),SIZE,cords);
+	makeLineB_point(&(cb->points[4]), &(cb->points[5]),SIZE,cords);
+	makeLineB_point(&(cb->points[5]), &(cb->points[6]),SIZE,cords);
+	makeLineB_point(&(cb->points[6]), &(cb->points[7]),SIZE,cords);
+	makeLineB_point(&(cb->points[7]), &(cb->points[4]),SIZE,cords);
+	makeLineB_point(&(cb->points[0]), &(cb->points[4]),SIZE,cords);
+	makeLineB_point(&(cb->points[1]), &(cb->points[5]),SIZE,cords);
+	makeLineB_point(&(cb->points[2]), &(cb->points[6]),SIZE,cords);
+	makeLineB_point(&(cb->points[3]), &(cb->points[7]),SIZE,cords);
+}
 
 int main(){
 	
@@ -199,11 +218,13 @@ int main(){
 
 	
 	//projection 3d matrix
-	float ProjectionMatrix[2][3] =  {
+	float ProjectionMatrix[3][3] =  {
 		{1,0,0},
-		{0,1,0}
+		{0,1,0},
+      		{0,0,1}
 	};
 
+	
 	/*
 	//defining square 
 	//cords are normalized between <-2;2>
@@ -260,7 +281,6 @@ int main(){
 	int frame = 0;
 	
 
-
 	while(1){
 	
 		printf("\x1b[H"); // home position cursor
@@ -285,7 +305,6 @@ int main(){
 		sqr = sq;
 		rotateSquare_2D_XY(&sqr, &phi);
 
-		//connectSquare(&sqr,&phi,&SIZE,cords);
 		makeLineB(normalize(sqr.points[0].x, &SIZE),normalize(sqr.points[0].y, &SIZE),normalize(sqr.points[1].x, &SIZE),normalize(sqr.points[1].y, &SIZE), &SIZE, cords);
 		makeLineB(normalize(sqr.points[1].x, &SIZE),normalize(sqr.points[1].y, &SIZE),normalize(sqr.points[2].x, &SIZE),normalize(sqr.points[2].y, &SIZE), &SIZE, cords);
 		makeLineB(normalize(sqr.points[2].x, &SIZE),normalize(sqr.points[2].y, &SIZE),normalize(sqr.points[3].x, &SIZE),normalize(sqr.points[3].y, &SIZE), &SIZE, cords);
@@ -296,8 +315,41 @@ int main(){
 		}
 		*/
 
+		cbr = cb;
+		matmul3x3(&cbr, ProjectionMatrix);
 
+		// Rotation matrix around the X-axis
+		float rotation_X[3][3] = {
+    			{1, 0, 0},
+    			{0, cos(phi), -sin(phi)},
+    			{0, sin(phi), cos(phi)}
+		};
+
+		// Rotation matrix around the Y-axis
+		float rotation_Y[3][3] = {
+    			{cos(phi), 0, sin(phi)},
+    			{0, 1, 0},
+    			{-sin(phi), 0, cos(phi)}
+		};
+
+		// Rotation matrix around the Z-axis
+		float rotation_Z[3][3] = {
+    			{cos(phi), -sin(phi), 0},
+    			{sin(phi), cos(phi), 0},
+    			{0, 0, 1}
+		};
+
+		matmul3x3(&cbr, rotation_X);
+		matmul3x3(&cbr, rotation_Y);
+		matmul3x3(&cbr, rotation_Z);
 		
+		connectCube(&cbr, &SIZE, cords);	
+
+		for(int u=0;u<CB_SIZE;u++){
+			cords[normalize(cbr.points[u].y, &SIZE)][normalize(cbr.points[u].x, &SIZE)]='o';
+		}
+		
+
 		//printing the whole screen
 		for(int i =0; i<SIZE; i++){
 			for(int j = 0; j<SIZE; j++){
@@ -313,7 +365,6 @@ int main(){
 		frame =  (frame<2000)?frame+1 : 0;
 		printf("%d\n",frame);
 		*/
-
 		//calctulating phi
 		phi = (phi<M_PI*2)?phi+PHI_SPD:0;
 		//printf("phi: %f\n", phi);
