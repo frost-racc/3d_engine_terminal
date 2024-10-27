@@ -1,2 +1,4 @@
-# 3d_engine_terminal
-creating a 3d projection C code for terminal view
+branch with working 3d space renderer
+
+going to merge after cleaning up the code
+
