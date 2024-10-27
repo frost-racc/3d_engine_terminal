@@ -2,6 +2,7 @@
 #include <windows.h>
 #include <math.h>
 #define SQ_SIZE 4
+#define CB_SIZE 8
 #define PHI_SPD 0.1
 #define SHAPE_SCALE 5
 
@@ -10,6 +11,12 @@ typedef struct{
 	float y;
 }point;
 
+typedef struct{
+	float x;
+	float y;
+	float z;
+}point_3D;
+
 
 
 typedef struct{
@@ -17,7 +24,12 @@ typedef struct{
 }square;
 
 
-void rotatePoint(point *p,float *phi){
+typedef struct{
+	point_3D points[CB_SIZE];
+}cube;
+
+
+void rotatePoint_2D_XY(point *p,float *phi){
 	float tempx, tempy;
 	tempx = (p->x * cos(*phi)) - (p->y*sin(*phi));
 	tempy = (p->x * sin(*phi)) + (p->y*cos(*phi));
@@ -29,7 +41,7 @@ void rotatePoint(point *p,float *phi){
 
 void rotateSquare_2D_XY(square *sq, float *phi){
 	for(int i=0; i<SQ_SIZE; i++){
-		rotatePoint(&(sq->points[i]), phi);
+		rotatePoint_2D_XY(&(sq->points[i]), phi);
 	}
 }
 
@@ -166,6 +178,10 @@ void makeLineB(int x0, int y0, int x1, int y1, int *SIZE, char (*cords)[*SIZE]){
 	}
 }
 
+void MatMul3D(){
+	
+}
+
 
 int main(){
 	
@@ -182,9 +198,13 @@ int main(){
 	char cords[SIZE][SIZE];
 
 	
-	
+	//projection 3d matrix
+	float ProjectionMatrix[2][3] =  {
+		{1,0,0},
+		{0,1,0}
+	};
 
-
+	/*
 	//defining square 
 	//cords are normalized between <-2;2>
 	
@@ -197,7 +217,42 @@ int main(){
 	sq.points[2].y=-0.1*SHAPE_SCALE;
 	sq.points[3].x=-0.1*SHAPE_SCALE;
 	sq.points[3].y=-0.1*SHAPE_SCALE;	
-	
+	*/
+
+	//defining a cube
+	cube cb, cbr;
+	cb.points[0].x = 0.1*SHAPE_SCALE;
+	cb.points[0].y = 0.1*SHAPE_SCALE;
+	cb.points[0].z = 0.1*SHAPE_SCALE;
+
+	cb.points[1].x = 0.1*SHAPE_SCALE;
+	cb.points[1].y = -0.1*SHAPE_SCALE;
+	cb.points[1].z = 0.1*SHAPE_SCALE;
+
+	cb.points[2].x = -0.1*SHAPE_SCALE;
+	cb.points[2].y = -0.1*SHAPE_SCALE;
+	cb.points[2].z = 0.1*SHAPE_SCALE;
+
+	cb.points[3].x = -0.1*SHAPE_SCALE;
+	cb.points[3].y = 0.1*SHAPE_SCALE;
+	cb.points[3].z = 0.1*SHAPE_SCALE;
+
+	cb.points[4].x = 0.1*SHAPE_SCALE;
+	cb.points[4].y = 0.1*SHAPE_SCALE;
+	cb.points[4].z = -0.1*SHAPE_SCALE;
+
+	cb.points[5].x = 0.1*SHAPE_SCALE;
+	cb.points[5].y = -0.1*SHAPE_SCALE;
+	cb.points[5].z = -0.1*SHAPE_SCALE;
+
+	cb.points[6].x = -0.1*SHAPE_SCALE;
+	cb.points[6].y = -0.1*SHAPE_SCALE;
+	cb.points[6].z = -0.1*SHAPE_SCALE;
+
+	cb.points[7].x = -0.1*SHAPE_SCALE;
+	cb.points[7].y = 0.1*SHAPE_SCALE;
+	cb.points[7].z = -0.1*SHAPE_SCALE;
+
 
 	float phi=0;
 
@@ -224,7 +279,9 @@ int main(){
 				}	
 			}
 		}
-		
+	
+		/*
+		// code to generate sppinning 2d square
 		sqr = sq;
 		rotateSquare_2D_XY(&sqr, &phi);
 
@@ -235,9 +292,9 @@ int main(){
 		makeLineB(normalize(sqr.points[3].x, &SIZE),normalize(sqr.points[3].y, &SIZE),normalize(sqr.points[0].x, &SIZE),normalize(sqr.points[0].y, &SIZE), &SIZE, cords);
 
 		for(int u=0;u<SQ_SIZE;u++){
-			cords[normalize(sqr.points[u].y, &SIZE)][normalize(sqr.points[u].x, &SIZE)]='O';
+			cords[normalize(sqr.points[u].y, &SIZE)][normalize(sqr.points[u].x, &SIZE)]='o';
 		}
-	
+		*/
 
 
 		
