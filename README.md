@@ -1,2 +1,5 @@
 # 3d_engine_terminal
-creating a 3d projection C code for terminal view
+
+# This project aims to be a small 3d renderer engine in terminal view
+
+So far I've managed to create a basic 3d rotation with proper translation (look branches)
