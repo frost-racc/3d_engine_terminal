@@ -8,4 +8,4 @@ WARNING: the terminal has to support VT100 terminal escape codes
 <p>comment out windows.h</p>
 
 
-So far I've managed to create a basic 3d rotation with proper translation (look branches)
+<h4>So far I've managed to create a basic 3d rotation with proper translation (look branches)</h4>
